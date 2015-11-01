@@ -92,7 +92,7 @@ def application(environ, start_response):
             # HTTP Headers
             headers = [('Content-type', 'application/metalink4+xml')]
         except Exception, e:
-            out = FileWrapper(open("form.html"))
+            out = FileWrapper(open("error.html"))
             status = "400 Bad Request"
             headers = [('Content-type', 'text/html; charset=utf-8')]
     start_response(status, headers)
