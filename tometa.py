@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from urlparse import parse_qsl
+from __future__ import unicode_literals
+
+try:
+    from urlparse import parse_qsl
+except ImportError:  # python3
+    from urllib.parse import parse_qsl
+
 from xml.sax.saxutils import escape, quoteattr
 from wsgiref.util import FileWrapper
 import re
@@ -25,11 +31,11 @@ class App(object):
             out = FileWrapper(open(self.form_path))
         else:
             try:
-                out = [makelink(qst)]
+                out = [makelink(qst).encode("utf8")]
                 status = '200 OK'  # HTTP Status
                 # HTTP Headers
                 headers = [('Content-type', 'application/metalink4+xml')]
-            except Exception, e:
+            except (Exception, e):
                 out = FileWrapper(open("error.html"))
                 status = "400 Bad Request"
                 headers = [('Content-type', 'text/html; charset=utf-8')]

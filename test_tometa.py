@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import unittest
 import tometa
 
@@ -16,7 +18,7 @@ class TestToMeta(unittest.TestCase):
 
     def test_getname(self):
         qst = [("name", "\"'Üü"), ("name", "noo")]
-        self.assertEqual(self.app.getname(qst), '"&quot;\'\xc3\x9c\xc3\xbc"')
+        self.assertEqual(self.app.getname(qst), '"&quot;\'Üü"')
         try:
             self.app.getname([])
         except ValueError:
