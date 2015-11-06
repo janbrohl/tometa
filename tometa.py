@@ -79,21 +79,30 @@ def makelink(qst):
                       metaurls=_getmetaurls(qst), hashes=_gethashes(qst))
 
 
-def application(environ, start_response):
-    qst = tuple(parse_qsl(environ["QUERY_STRING"]))
-    if not qst:
-        status = '200 OK'  # HTTP Status
-        headers = [('Content-type', 'text/html; charset=utf-8')]
-        out = FileWrapper(open("form.html"))
-    else:
-        try:
-            out = [makelink(qst)]
+class App(object):
+
+    def __init__(self, form_path="form.html", error_path="error.html"):
+        self.form_path = form_path
+        self.error_path = error_path
+
+    def __call__(self, environ, start_response):
+        qst = tuple(parse_qsl(environ["QUERY_STRING"]))
+        if not qst:
             status = '200 OK'  # HTTP Status
-            # HTTP Headers
-            headers = [('Content-type', 'application/metalink4+xml')]
-        except Exception, e:
-            out = FileWrapper(open("error.html"))
-            status = "400 Bad Request"
             headers = [('Content-type', 'text/html; charset=utf-8')]
-    start_response(status, headers)
-    return out
+            out = FileWrapper(open(self.form_path))
+        else:
+            try:
+                out = [makelink(qst)]
+                status = '200 OK'  # HTTP Status
+                # HTTP Headers
+                headers = [('Content-type', 'application/metalink4+xml')]
+            except Exception, e:
+                out = FileWrapper(open("error.html"))
+                status = "400 Bad Request"
+                headers = [('Content-type', 'text/html; charset=utf-8')]
+        start_response(status, headers)
+        return out
+
+
+application = App()
