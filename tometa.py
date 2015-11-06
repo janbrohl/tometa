@@ -1,4 +1,3 @@
-#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
 from urlparse import parse_qsl
@@ -46,7 +45,10 @@ class App(object):
 
     @classmethod
     def getname(cls, qst):
-        return quoteattr(qls.first_qst(qst, "name"))
+        name = cls.first_qst(qst, "name")
+        if name is None:
+            raise ValueError("'name' dot found in qst")
+        return quoteattr(name)
 
     @classmethod
     def getsize(cls, qst):
@@ -86,7 +88,7 @@ class App(object):
             if m is not None:
                 outl.append('<hash type=%s>%s</hash>' %
                             (quoteattr(m.group(1)), escape(s)))
-    return "\n".join(outl)
+        return "\n".join(outl)
 
     @classmethod
     def makelink(cls, qst):
