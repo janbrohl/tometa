@@ -110,3 +110,9 @@ class App(object):
 </metalink>""".format(version=__version__, name=cls.getname(qst),
                       size=cls.getsize(qst), urls=cls.geturls(qst),
                       metaurls=cls.getmetaurls(qst), hashes=cls.gethashes(qst))
+
+if __name__ == "__main__":
+    import sys
+    app = App()
+    qst = [s.lstrip("-").split("=", 1) for s in sys.argv[1:]]
+    sys.stdout.write(app.makelink(qst))
