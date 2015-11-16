@@ -28,7 +28,7 @@ class App(object):
         if not qst:
             status = '200 OK'  # HTTP Status
             headers = [('Content-type', 'text/html; charset=utf-8')]
-            out = FileWrapper(open(self.form_path))
+            out = FileWrapper(open(self.form_path, "rb"))
         else:
             try:
                 out = [makelink(qst).encode("utf8")]
@@ -36,7 +36,7 @@ class App(object):
                 # HTTP Headers
                 headers = [('Content-type', 'application/metalink4+xml')]
             except (Exception, e):
-                out = FileWrapper(open("error.html"))
+                out = FileWrapper(open(self.error_path, "rb"))
                 status = "400 Bad Request"
                 headers = [('Content-type', 'text/html; charset=utf-8')]
         start_response(status, headers)
