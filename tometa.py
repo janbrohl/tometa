@@ -34,19 +34,19 @@ class App(object):
     def __call__(self, environ, start_response):
         qsl = parse_qsl(environ["QUERY_STRING"])
         if not qsl:
-            status = '200 OK'  # HTTP Status
-            headers = [('Content-type', 'text/html; charset=utf-8')]
+            status = b'200 OK'  # HTTP Status
+            headers = [(b'Content-type', b'text/html; charset=utf-8')]
             out = wrap_file(environ, open(self.form_path, "rb"))
         else:
             try:
                 out = [self.makelink(qsl).encode("utf8")]
-                status = '200 OK'  # HTTP Status
+                status = b'200 OK'  # HTTP Status
                 # HTTP Headers
-                headers = [('Content-type', 'application/metalink4+xml')]
+                headers = [(b'Content-type', b'application/metalink4+xml')]
             except Exception:
                 out = wrap_file(environ, open(self.error_path, "rb"))
-                status = "400 Bad Request"
-                headers = [('Content-type', 'text/html; charset=utf-8')]
+                status = b"400 Bad Request"
+                headers = [(b'Content-type', b'text/html; charset=utf-8')]
         start_response(status, headers)
         return out
 
