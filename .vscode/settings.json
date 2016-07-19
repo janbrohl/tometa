@@ -1,0 +1,10 @@
+// Platzieren Sie Ihre Einstellungen in dieser Datei, um Standard- und Benutzereinstellungen zu überschreiben.
+{
+    // Konfiguriert die Globmuster zum Ausschließen von Dateien und Ordnern.
+    "files.exclude": {
+        "**/*.pyc": true,
+        "**/*.pyo": true
+    },
+    // Format the document upon saving.
+    "python.formatting.formatOnSave": true
+}
