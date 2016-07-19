@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
 try:
     from urlparse import parse_qsl
@@ -8,10 +8,18 @@ except ImportError:  # python3
     from urllib.parse import parse_qsl
 
 from xml.sax.saxutils import escape, quoteattr
-from wsgiref.util import FileWrapper
 import re
 
-__version__ = "0.3"
+__version__ = "0.4"
+
+
+def wrap_file(environ, filelike, block_size=8192):
+    # copied from
+    # http://legacy.python.org/dev/peps/pep-3333/#optional-platform-specific-file-handling
+    if 'wsgi.file_wrapper' in environ:
+        return environ['wsgi.file_wrapper'](filelike, block_size)
+    else:
+        return iter(lambda: filelike.read(block_size), '')
 
 
 class App(object):
@@ -24,49 +32,61 @@ class App(object):
         self.error_path = error_path
 
     def __call__(self, environ, start_response):
-        qst = tuple(parse_qsl(environ["QUERY_STRING"]))
-        if not qst:
+        qsl = parse_qsl(environ["QUERY_STRING"])
+        if not qsl:
             status = '200 OK'  # HTTP Status
             headers = [('Content-type', 'text/html; charset=utf-8')]
-            out = FileWrapper(open(self.form_path, "rb"))
+            out = wrap_file(environ, open(self.form_path, "rb"))
         else:
             try:
-                out = [makelink(qst).encode("utf8")]
+                out = [self.makelink(qsl).encode("utf8")]
                 status = '200 OK'  # HTTP Status
                 # HTTP Headers
                 headers = [('Content-type', 'application/metalink4+xml')]
-            except (Exception, e):
-                out = FileWrapper(open(self.error_path, "rb"))
+            except Exception:
+                out = wrap_file(environ, open(self.error_path, "rb"))
                 status = "400 Bad Request"
                 headers = [('Content-type', 'text/html; charset=utf-8')]
         start_response(status, headers)
         return out
 
     @staticmethod
-    def first_qst(qst, key):
-        for k, v in qst:
+    def first_qs(qsl, key):
+        """
+        return the first parameter value for key
+        """
+        for k, v in qsl:
             if k == key:
                 return v
         return None
 
     @classmethod
-    def getname(cls, qst):
-        name = cls.first_qst(qst, "name")
+    def getname(cls, qsl):
+        """
+        return the quoted name
+        """
+        name = cls.first_qs(qsl, "name")
         if name is None:
-            raise ValueError("'name' dot found in qst")
+            raise ValueError("'name' not found in qst")
         return quoteattr(name)
 
     @classmethod
-    def getsize(cls, qst):
-        size = cls.first_qst(qst, "size")
+    def getsize(cls, qsl):
+        """
+        return a size element string
+        """
+        size = cls.first_qs(qsl, "size")
         if size:
             return "<size>%i</size>" % int(size)
         return ""
 
     @classmethod
-    def geturls(cls, qst):
+    def geturls(cls, qsl):
+        """
+        return url element strings
+        """
         outl = []
-        for k, s in qst:
+        for k, s in qsl:
             m = cls.url_re.match(k)
             if m is not None:
                 if m.group(1):
@@ -77,9 +97,12 @@ class App(object):
         return "\n".join(outl)
 
     @classmethod
-    def getmetaurls(cls, qst):
+    def getmetaurls(cls, qsl):
+        """
+        return metaurl elements string
+        """
         outl = []
-        for k, s in qst:
+        for k, s in qsl:
             m = cls.metaurl_re.match(k)
             if m is not None:
                 outl.append('<metaurl mediatype=%s>%s</metaurl>' %
@@ -87,9 +110,12 @@ class App(object):
         return "\n".join(outl)
 
     @classmethod
-    def gethashes(cls, qst):
+    def gethashes(cls, qsl):
+        """
+        return hash elements string
+        """
         outl = []
-        for k, s in qst:
+        for k, s in qsl:
             m = cls.hash_re.match(k)
             if m is not None:
                 outl.append('<hash type=%s>%s</hash>' %
@@ -97,7 +123,10 @@ class App(object):
         return "\n".join(outl)
 
     @classmethod
-    def makelink(cls, qst):
+    def makelink(cls, qsl):
+        """
+        return an actual metalink4 xml string
+        """
         return """<?xml version="1.0" encoding="UTF-8"?>
 <metalink xmlns="urn:ietf:params:xml:ns:metalink">
 <generator>ToMeta/{version}</generator>
@@ -107,12 +136,12 @@ class App(object):
 {metaurls}
 {hashes}
 </file>
-</metalink>""".format(version=__version__, name=cls.getname(qst),
-                      size=cls.getsize(qst), urls=cls.geturls(qst),
-                      metaurls=cls.getmetaurls(qst), hashes=cls.gethashes(qst))
+</metalink>""".format(version=__version__, name=cls.getname(qsl),
+                      size=cls.getsize(qsl), urls=cls.geturls(qsl),
+                      metaurls=cls.getmetaurls(qsl), hashes=cls.gethashes(qsl))
 
 if __name__ == "__main__":
     import sys
     app = App()
-    qst = [s.lstrip("-").split("=", 1) for s in sys.argv[1:]]
-    sys.stdout.write(app.makelink(qst))
+    qsli = [s.lstrip("-").split("=", 1) for s in sys.argv[1:]]
+    sys.stdout.write(app.makelink(qsli))
