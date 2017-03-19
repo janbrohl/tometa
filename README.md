@@ -1,6 +1,7 @@
 # tometa
 
 [![Build Status](https://travis-ci.org/janbrohl/tometa.svg?branch=master)](https://travis-ci.org/janbrohl/tometa)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks!-%F0%9F%A6%89-1EAEDB.svg)](https://saythanks.io/to/janbrohl)
 
 Library and WSGI Application to generate [Metalinks](https://en.wikipedia.org/wiki/Metalink) from simple query strings.
 
