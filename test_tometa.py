@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals, absolute_import
-
 import unittest
 import tometa
 
 
 class TestToMeta(unittest.TestCase):
-
     def setUp(self):
         self.app = tometa.App()
 
@@ -28,8 +25,8 @@ class TestToMeta(unittest.TestCase):
 
     def test_getsize(self):
         qst = [("size", '30000000000000000570425344')]
-        self.assertEqual(self.app.getsize(
-            qst), "<size>30000000000000000570425344</size>")
+        self.assertEqual(self.app.getsize(qst),
+                         "<size>30000000000000000570425344</size>")
         self.assertEqual(self.app.getsize([]), "")
 
 

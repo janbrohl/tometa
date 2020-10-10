@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals, absolute_import
-
-try:
-    from urlparse import parse_qsl
-except ImportError:  # python3
-    from urllib.parse import parse_qsl
-
+from urllib.parse import parse_qsl
 from xml.sax.saxutils import escape, quoteattr
 import re
 
-__version__ = "0.4"
+__version__ = "0.5"
 
 
 def wrap_file(environ, filelike, block_size=8192):
@@ -22,7 +16,7 @@ def wrap_file(environ, filelike, block_size=8192):
         return iter(lambda: filelike.read(block_size), '')
 
 
-class App(object):
+class App:
     url_re = re.compile("url(?::(.+))?")
     metaurl_re = re.compile("metaurl:(.+)")
     hash_re = re.compile("hash:(.+)")
@@ -51,7 +45,7 @@ class App(object):
         return out
 
     @staticmethod
-    def first_qs(qsl, key):
+    def first_qs(qsl: list, key: str):
         """
         return the first parameter value for key
         """
@@ -61,7 +55,7 @@ class App(object):
         return None
 
     @classmethod
-    def getname(cls, qsl):
+    def getname(cls, qsl: list) -> str:
         """
         return the quoted name
         """
@@ -71,7 +65,7 @@ class App(object):
         return quoteattr(name)
 
     @classmethod
-    def getsize(cls, qsl):
+    def getsize(cls, qsl: list) -> str:
         """
         return a size element string
         """
@@ -81,7 +75,7 @@ class App(object):
         return ""
 
     @classmethod
-    def geturls(cls, qsl):
+    def geturls(cls, qsl: list) -> str:
         """
         return url element strings
         """
@@ -97,7 +91,7 @@ class App(object):
         return "\n".join(outl)
 
     @classmethod
-    def getmetaurls(cls, qsl):
+    def getmetaurls(cls, qsl: list) -> str:
         """
         return metaurl elements string
         """
@@ -110,7 +104,7 @@ class App(object):
         return "\n".join(outl)
 
     @classmethod
-    def gethashes(cls, qsl):
+    def gethashes(cls, qsl: list):
         """
         return hash elements string
         """
@@ -123,7 +117,7 @@ class App(object):
         return "\n".join(outl)
 
     @classmethod
-    def makelink(cls, qsl):
+    def makelink(cls, qsl: list) -> str:
         """
         return an actual metalink4 xml string
         """
@@ -136,9 +130,13 @@ class App(object):
 {metaurls}
 {hashes}
 </file>
-</metalink>""".format(version=__version__, name=cls.getname(qsl),
-                      size=cls.getsize(qsl), urls=cls.geturls(qsl),
-                      metaurls=cls.getmetaurls(qsl), hashes=cls.gethashes(qsl))
+</metalink>""".format(version=__version__,
+                      name=cls.getname(qsl),
+                      size=cls.getsize(qsl),
+                      urls=cls.geturls(qsl),
+                      metaurls=cls.getmetaurls(qsl),
+                      hashes=cls.gethashes(qsl))
+
 
 if __name__ == "__main__":
     import sys
