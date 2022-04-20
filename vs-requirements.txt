@@ -1,2 +1,2 @@
-pylint
+pylint==2.13.6
 yapf
