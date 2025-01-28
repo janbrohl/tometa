@@ -1,2 +1,2 @@
-pylint
+pylint==3.3.4
 yapf
